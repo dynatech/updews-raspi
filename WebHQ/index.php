@@ -41,17 +41,19 @@ $fname1 = "PublicAlert.json";
 				$validity = $jsonTxt[$i]->validity;
 				$sensor = $jsonTxt[$i]->sensor_alert;
 				$rain = $jsonTxt[$i]->rain_alert;
+				$retrigger = " (Retrigger: " . $jsonTxt[$i]->retriggerTS . ")";
 
 				$line = "$ts $site $alert $source $ial $validity $sensor $rain";
 
+
 				if ( ($alert == "A3") || ($ial == "A3") ) {
-					array_push($level3, $line);
+					array_push($level3, $line . $retrigger);
 				}
 				elseif ( ($alert == "A2") || ($ial == "A2") ) {
-					array_push($level2, $line);
+					array_push($level2, $line . $retrigger);
 				}
 				elseif ( ($alert == "A1") || ($ial == "A1") ) {
-					array_push($level1, $line);
+					array_push($level1, $line . $retrigger);
 				}
 				else {
 					array_push($noAlert, $line);
