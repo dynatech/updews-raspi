@@ -120,7 +120,7 @@ $fIssues = "MonitoringIssues.txt";
 							$iomp = $invalid->iomp;
 							$remarks = $invalid->remarks;
 
-							$line = "$ts $site $alert <Br/>";
+							$line = "$ts $site <Br/>";
 							$remarks = "IOMP: $iomp <Br/> Remarks: $remarks";
 
 
