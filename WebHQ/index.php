@@ -29,7 +29,7 @@ $fIssues = "MonitoringIssues.txt";
 					$jsonTxt = json_decode($txt1);
 					
 					//Get Alert Level of All Sites
-					$alerts = $jsonTxt[0]->alert;
+					$alerts = $jsonTxt[0]->alerts;
 
 					$level3 = [];
 					$level2 = [];
@@ -105,7 +105,7 @@ $fIssues = "MonitoringIssues.txt";
 					<h2><i>Invalidated Alerts</i></h2>
 					<?php
 						//Get Invalidations
-						$invalids = $jsonTxt[0]->invalid;
+						$invalids = $jsonTxt[0]->invalids;
 
 						$InvalidLevel3 = [];
 						$InvalidLevel2 = [];
@@ -113,25 +113,28 @@ $fIssues = "MonitoringIssues.txt";
 						$InvalidOthers = [];
 
 						//Parsing of Invalidated Alerts
-						foreach ($invalids as $single_alert) {
-							$ts = $single_alert->ts;
-							$site = $single_alert->site;
-							$alert = $single_alert->alert;
+						foreach ($invalids as $invalid) {
+							$ts = $invalid->timestamp;
+							$site = $invalid->site;
+							$alert = $invalid->alert;
+							$iomp = $invalid->iomp;
+							$remarks = $invalid->remarks;
 
-							$line = "$ts $site $alert";
+							$line = "$ts $site $alert <Br/>";
+							$remarks = "IOMP: $iomp <Br/> Remarks: $remarks";
 
 
 							if ( ($alert == "A3") || ($ial == "A3") ) {
-								array_push($InvalidLevel3, $line);
+								array_push($InvalidLevel3, $line . $remarks);
 							}
 							elseif ( ($alert == "A2") || ($ial == "A2") ) {
-								array_push($InvalidLevel2, $line);
+								array_push($InvalidLevel2, $line . $remarks);
 							}
 							elseif ( ($alert == "A1") || ($ial == "A1") ) {
-								array_push($InvalidLevel1, $line);
+								array_push($InvalidLevel1, $line . $remarks);
 							}
 							else {
-								array_push($InvalidOthers, $line);
+								array_push($InvalidOthers, $line . $remarks);
 							}
 						}					
 
