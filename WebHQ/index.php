@@ -27,23 +27,26 @@ $fIssues = "MonitoringIssues.txt";
 					fclose($myfile1);
 
 					$jsonTxt = json_decode($txt1);
-
-					$numSites = count($jsonTxt);
+					
+					//Get Alert Level of All Sites
+					$alerts = $jsonTxt[0]->alert;
 
 					$level3 = [];
 					$level2 = [];
 					$level1 = [];
 					$noAlert = [];
-					for ($i=0; $i < $numSites ; $i++) { 
-						$ts = $jsonTxt[$i]->timestamp;
-						$site = $jsonTxt[$i]->site;
-						$alert = $jsonTxt[$i]->alert;
-						$source = $jsonTxt[$i]->source;
-						$ial = $jsonTxt[$i]->internal_alert;
-						$validity = $jsonTxt[$i]->validity;
-						$sensor = $jsonTxt[$i]->sensor_alert;
-						$rain = $jsonTxt[$i]->rain_alert;
-						$retrigger = " (Retrigger: " . $jsonTxt[$i]->retriggerTS . ")";
+
+					//Parsing of Public Alerts
+					foreach ($alerts as $single_alert) {
+						$ts = $single_alert->timestamp;
+						$site = $single_alert->site;
+						$alert = $single_alert->alert;
+						$source = $single_alert->source;
+						$ial = $single_alert->internal_alert;
+						$validity = $single_alert->validity;
+						$sensor = $single_alert->sensor_alert;
+						$rain = $single_alert->rain_alert;
+						$retrigger = " (Retrigger: " . $single_alert->retriggerTS . ")";
 
 						$line = "$ts $site $alert $source $ial $validity $sensor $rain";
 
@@ -60,7 +63,7 @@ $fIssues = "MonitoringIssues.txt";
 						else {
 							array_push($noAlert, $line);
 						}
-					}
+					}					
 
 					$countA3 = count($level3);
 					if ($countA3 > 0) {
@@ -93,17 +96,80 @@ $fIssues = "MonitoringIssues.txt";
 					foreach ($noAlert as $alert) {
 						echo '<p class="bg-success">' . $alert . '</p>';
 					}
+
+					
 				?>
 			</div>
 			<div class="col-sm-5">
-				<h2><i><?php echo $fIssues; ?></i></h2>
-				<?php
-					$issuesFile = fopen($fdir . $fIssues, "r") or die("Unable to open file!");
-					$txtIssues = fread($issuesFile,filesize($fdir . $fIssues));
-					fclose($issuesFile);
+				<row>
+					<h2><i>Invalidated Alerts</i></h2>
+					<?php
+						//Get Invalidations
+						$invalids = $jsonTxt[0]->invalid;
 
-					echo "<p>". nl2br($txtIssues) ."</p>";
-				?>
+						$InvalidLevel3 = [];
+						$InvalidLevel2 = [];
+						$InvalidLevel1 = [];
+						$InvalidOthers = [];
+
+						//Parsing of Invalidated Alerts
+						foreach ($invalids as $single_alert) {
+							$ts = $single_alert->ts;
+							$site = $single_alert->site;
+							$alert = $single_alert->alert;
+
+							$line = "$ts $site $alert";
+
+
+							if ( ($alert == "A3") || ($ial == "A3") ) {
+								array_push($InvalidLevel3, $line);
+							}
+							elseif ( ($alert == "A2") || ($ial == "A2") ) {
+								array_push($InvalidLevel2, $line);
+							}
+							elseif ( ($alert == "A1") || ($ial == "A1") ) {
+								array_push($InvalidLevel1, $line);
+							}
+							else {
+								array_push($InvalidOthers, $line);
+							}
+						}					
+
+						$countInvA3 = count($InvalidLevel3);
+						if ($countInvA3 > 0) {
+							echo "<h3>Invalid Alert Level 3 ($countInvA3)</h3>";
+						}
+						foreach ($InvalidLevel3 as $alert) {
+							echo '<p class="bg-danger">' . $alert . '</p>';
+						}
+
+						$countInvA2 = count($InvalidLevel2);
+						if ($countInvA2 > 0) {
+							echo "<h3>Invalid Alert Level 2 ($countInvA2)</h3>";
+						}
+						foreach ($InvalidLevel2 as $alert) {
+							echo '<p class="bg-warning">' . $alert . '</p>';
+						}
+
+						$countInvA1 = count($InvalidLevel1);
+						if ($countInvA1 > 0) {
+							echo "<h3>Invalid Alert Level 1 ($countInvA1)</h3>";
+						}
+						foreach ($InvalidLevel1 as $alert) {
+							echo '<p class="bg-info">' . $alert . '</p>';
+						}
+					?>
+				</row>
+				<row>
+					<h2><i><?php echo $fIssues; ?></i></h2>
+					<?php
+						$issuesFile = fopen($fdir . $fIssues, "r") or die("Unable to open file!");
+						$txtIssues = fread($issuesFile,filesize($fdir . $fIssues));
+						fclose($issuesFile);
+
+						echo "<p>". nl2br($txtIssues) ."</p>";
+					?>
+				</row>
 			</div>
 		</div>
 
