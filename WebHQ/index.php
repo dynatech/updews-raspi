@@ -73,17 +73,18 @@ $fIssues = "MonitoringIssues.txt";
 							$retrigger = "";
 						}
 
-						$line = "$ts $site $alert $source $ial $validity $sensor $rain ";
+						$line = "$ts $site $alert $source $ial $validity $sensor $rain <Br/>";
+						$whiteSpace = "&nbsp &nbsp &nbsp &nbsp";
 
 
 						if ( ($alert == "A3") || ($ial == "A3") ) {
-							array_push($level3, $line . $retrigger);
+							array_push($level3, $line . $whiteSpace . $retrigger);
 						}
 						elseif ( ($alert == "A2") || ($ial == "A2") ) {
-							array_push($level2, $line . $retrigger);
+							array_push($level2, $line . $whiteSpace . $retrigger);
 						}
 						elseif ( ($alert == "A1") || ($ial == "A1") ) {
-							array_push($level1, $line . $retrigger);
+							array_push($level1, $line . $whiteSpace . $retrigger);
 						}
 						else {
 							array_push($noAlert, $line);
@@ -99,7 +100,7 @@ $fIssues = "MonitoringIssues.txt";
 					}
 
 					$countA2 = count($level2);
-					if ($countA2 > 0) {
+					if ($countA2 > 0&nbsp &nbsp &nbsp &nbsp) {
 						echo "<h3>Alert Level 2 ($countA2)</h3>";
 					}
 					foreach ($level2 as $alert) {
