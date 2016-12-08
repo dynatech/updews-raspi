@@ -44,11 +44,36 @@ $fIssues = "MonitoringIssues.txt";
 						$source = $single_alert->source;
 						$ial = $single_alert->internal_alert;
 						$validity = $single_alert->validity;
-						$sensor = $single_alert->sensor_alert;
-						$rain = $single_alert->rain_alert;
-						$retrigger = " (Retrigger: " . $single_alert->retriggerTS . ")";
 
-						$line = "$ts $site $alert $source $ial $validity $sensor $rain";
+						$columnStatus = $single_alert->sensor_alert;
+						$sensor = "";
+						if (count($columnStatus) > 0) {
+							$sensor = "[";
+							foreach ($columnStatus as $column) {
+								$sensor = $sensor . $column->sensor . ":" . $column->alert . " ";
+							}
+							$sensor = $sensor . "]";
+						}
+						else {
+							$sensor = "[No Available Sensor Columns]";
+						}
+
+						$rain = $single_alert->rain_alert;
+						//$retrigger = " (Retrigger: " . $single_alert->retriggerTS . ")";
+						$retriggerStatus = $single_alert->retriggerTS;
+						$retrigger = "";
+						if (count($retriggerStatus) > 0) {
+							$retrigger = "[";
+							foreach ($retriggerStatus as $sRetrigger) {
+								$retrigger = $retrigger . $sRetrigger->retrigger . ":" . $sRetrigger->timestamp . " ";
+							}
+							$retrigger = $retrigger . "]";
+						}
+						else {
+							$retrigger = "";
+						}
+
+						$line = "$ts $site $alert $source $ial $validity $sensor $rain ";
 
 
 						if ( ($alert == "A3") || ($ial == "A3") ) {
