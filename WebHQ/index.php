@@ -100,7 +100,7 @@ $fIssues = "MonitoringIssues.txt";
 					}
 
 					$countA2 = count($level2);
-					if ($countA2 > 0&nbsp &nbsp &nbsp &nbsp) {
+					if ($countA2 > 0) {
 						echo "<h3>Alert Level 2 ($countA2)</h3>";
 					}
 					foreach ($level2 as $alert) {
