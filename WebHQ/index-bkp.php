@@ -1,8 +1,11 @@
 <?php
 header("refresh: 60;");
 $fdir = "/home/pi/monitoringoutputs/";
+// $fdir = "../monitoringoutputs/";
 $fAlerts = "PublicAlert.json";
 $fIssues = "MonitoringIssues.txt";
+
+error_reporting(E_ERROR | E_PARSE);
 ?>
 
 <!doctype html>
@@ -27,40 +30,111 @@ $fIssues = "MonitoringIssues.txt";
 					fclose($myfile1);
 
 					$jsonTxt = json_decode($txt1);
-
-					$numSites = count($jsonTxt);
+					
+					//Get Alert Level of All Sites
+					$alerts = $jsonTxt[0]->alerts;
 
 					$level3 = [];
 					$level2 = [];
 					$level1 = [];
 					$noAlert = [];
-					for ($i=0; $i < $numSites ; $i++) { 
-						$ts = $jsonTxt[$i]->timestamp;
-						$site = $jsonTxt[$i]->site;
-						$alert = $jsonTxt[$i]->alert;
-						$source = $jsonTxt[$i]->source;
-						$ial = $jsonTxt[$i]->internal_alert;
-						$validity = $jsonTxt[$i]->validity;
-						$sensor = $jsonTxt[$i]->sensor_alert;
-						$rain = $jsonTxt[$i]->rain_alert;
-						$retrigger = " (Retrigger: " . $jsonTxt[$i]->retriggerTS . ")";
 
-						$line = "$ts $site $alert $source $ial $validity $sensor $rain";
+					//Parsing of Public Alerts
+					foreach ($alerts as $single_alert) {
+						$ts = $single_alert->timestamp;
+						$site = $single_alert->site;
+						$alert = $single_alert->alert;
+						$source = $single_alert->source;
+						$ial = $single_alert->internal_alert;
+						$validity = $single_alert->validity;
+
+						$columnStatus = $single_alert->sensor_alert;
+						$sensor = "";
+						if (count($columnStatus) > 0) {
+							$sensor = "[";
+							foreach ($columnStatus as $column) {
+								$sensor = $sensor . $column->sensor . ":" . $column->alert . " ";
+							}
+							$sensor = $sensor . "]";
+						}
+						else {
+							$sensor = "[No Available Sensor Columns]";
+						}
+
+						$rain = $single_alert->rain_alert;
+						//$retrigger = " (Retrigger: " . $single_alert->retriggerTS . ")";
+						$retriggerStatus = $single_alert->retriggerTS;
+						$retrigger = "";
+						if (count($retriggerStatus) > 0) {
+							$retrigger = "[";
+							foreach ($retriggerStatus as $sRetrigger) {
+								$retrigger = $retrigger . $sRetrigger->retrigger . ":" . $sRetrigger->timestamp . " ";
+							}
+							$retrigger = $retrigger . "]";
+						}
+						else {
+							$retrigger = "";
+						}
+
+						$techInfo = $single_alert->tech_info;
+						$techInfoString = "";
+						if (count($techInfo) > 0) {
+							$rainTech = "";
+							$sensorTech = "";
+							$groundTech = "";
+							$eqTech = "";
+							$odTech = "";
+
+							foreach ($techInfo as $sTechInfo) {
+								try {
+									$rainTech = "rain tech info: " . $sTechInfo->rain_tech;
+								}
+								catch (Exception $e) {}
+
+								try {
+									$sensorTech = "sensor tech info: " . $sTechInfo->sensor_tech;
+								}
+								catch (Exception $e) {}
+
+								try {
+									$groundTech = "surficial ground tech info: " . $sTechInfo->ground_tech;
+								}
+								catch (Exception $e) {}
+
+								try {
+									$eqTech = "earthquake tech info: " . $sTechInfo->eq_tech;
+								}
+								catch (Exception $e) {}
+
+								try {
+									$odTech = "on demand tech info: " . $sTechInfo->od_tech;
+								}
+								catch (Exception $e) {}
+							}
+
+							$techInfoString = "[$rainTech $sensorTech $groundTech $eqTech $odTech]";
+						}
+						else {
+							$techInfoString = "";
+						}
+
+						$line = "$ts $site $alert $source $ial $validity $sensor $rain $techInfoString<Br/>";
+						$whiteSpace = "&nbsp &nbsp &nbsp &nbsp";
 
 
 						if ( ($alert == "A3") || ($ial == "A3") ) {
-							array_push($level3, $line . $retrigger);
+							array_push($level3, $line . $whiteSpace . $retrigger);
 						}
 						elseif ( ($alert == "A2") || ($ial == "A2") ) {
-							array_push($level2, $line . $retrigger);
+							array_push($level2, $line . $whiteSpace . $retrigger);
 						}
 						elseif ( ($alert == "A1") || ($ial == "A1") ) {
-							array_push($level1, $line . $retrigger);
+							array_push($level1, $line . $whiteSpace . $retrigger);
 						}
 						else {
 							array_push($noAlert, $line);
 						}
-					}
+					}					
 
 					$countA3 = count($level3);
 					if ($countA3 > 0) {
@@ -93,17 +167,83 @@ $fIssues = "MonitoringIssues.txt";
 					foreach ($noAlert as $alert) {
 						echo '<p class="bg-success">' . $alert . '</p>';
 					}
+
+					
 				?>
 			</div>
 			<div class="col-sm-5">
-				<h2><i><?php echo $fIssues; ?></i></h2>
-				<?php
-					$issuesFile = fopen($fdir . $fIssues, "r") or die("Unable to open file!");
-					$txtIssues = fread($issuesFile,filesize($fdir . $fIssues));
-					fclose($issuesFile);
+				<row>
+					<h2><i>Invalidated Alerts</i></h2>
+					<?php
+						//Get Invalidations
+						$invalids = $jsonTxt[0]->invalids;
 
-					echo "<p>". nl2br($txtIssues) ."</p>";
-				?>
+						$InvalidLevel3 = [];
+						$InvalidLevel2 = [];
+						$InvalidLevel1 = [];
+						$InvalidOthers = [];
+
+						//Parsing of Invalidated Alerts
+						foreach ($invalids as $invalid) {
+							$ts = $invalid->timestamp;
+							$site = $invalid->site;
+							$alert = $invalid->alert;
+							$iomp = $invalid->iomp;
+							$remarks = $invalid->remarks;
+
+							$line = "$ts $site <Br/>";
+							$remarks = "IOMP: $iomp <Br/> Remarks: $remarks";
+
+
+							if ( ($alert == "A3") || ($ial == "A3") ) {
+								array_push($InvalidLevel3, $line . $remarks);
+							}
+							elseif ( ($alert == "A2") || ($ial == "A2") ) {
+								array_push($InvalidLevel2, $line . $remarks);
+							}
+							elseif ( ($alert == "A1") || ($ial == "A1") ) {
+								array_push($InvalidLevel1, $line . $remarks);
+							}
+							else {
+								array_push($InvalidOthers, $line . $remarks);
+							}
+						}					
+
+						$countInvA3 = count($InvalidLevel3);
+						if ($countInvA3 > 0) {
+							echo "<h3>Invalid Alert Level 3 ($countInvA3)</h3>";
+						}
+						foreach ($InvalidLevel3 as $alert) {
+							echo '<p class="bg-danger">' . $alert . '</p>';
+						}
+
+						$countInvA2 = count($InvalidLevel2);
+						if ($countInvA2 > 0) {
+							echo "<h3>Invalid Alert Level 2 ($countInvA2)</h3>";
+						}
+						foreach ($InvalidLevel2 as $alert) {
+							echo '<p class="bg-warning">' . $alert . '</p>';
+						}
+
+						$countInvA1 = count($InvalidLevel1);
+						if ($countInvA1 > 0) {
+							echo "<h3>Invalid Alert Level 1 ($countInvA1)</h3>";
+						}
+						foreach ($InvalidLevel1 as $alert) {
+							echo '<p class="bg-info">' . $alert . '</p>';
+						}
+					?>
+				</row>
+				<row>
+					<h2><i><?php echo $fIssues; ?></i></h2>
+					<?php
+						$issuesFile = fopen($fdir . $fIssues, "r") or die("Unable to open file!");
+						$txtIssues = fread($issuesFile,filesize($fdir . $fIssues));
+						fclose($issuesFile);
+
+						echo "<p>". nl2br($txtIssues) ."</p>";
+					?>
+				</row>
 			</div>
 		</div>
 

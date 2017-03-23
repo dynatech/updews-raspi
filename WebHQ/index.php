@@ -19,11 +19,11 @@ fclose($myfile1);
 <title>Monitoring Outputs</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="style.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.js"></script>
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/handlebars.js"></script>
 </head>		
 <body>
 
@@ -223,32 +223,28 @@ fclose($myfile1);
 		            	<div class="col-sm-12">
 		            		<h3><u>Technical Info</u></h3>
 		            	</div>
-
-		            {{#each tech_info}}
 		            	<div class="col-sm-6">
-		            		{{#if sensor_tech}}
+		            		{{#if tech_info.sensor_tech}}
 		            			<label>Sensor: </label>
-		            			<p>{{sensor_tech}}</p>
+		            			<p>{{tech_info.sensor_tech}}</p>
 		            		{{/if}}
-		            		{{#if ground_tech}}
+		            		{{#if tech_info.ground_tech}}
 		            			<label>Surficial Ground Measurement: </label>
-		            			<p>{{ground_tech}}</p>
+		            			<p>{{tech_info.ground_tech}}</p>
 		            		{{/if}}
-		            		{{#if rain_tech}}
+		            		{{#if tech_info.rain_tech}}
 		            			<label>Rainfall: </label>
-		            			<p>{{rain_tech}}</p>
+		            			<p>{{tech_info.rain_tech}}</p>
 		            		{{/if}}
-		            		{{#if eq_tech}}
+		            		{{#if tech_info.eq_tech}}
 		            			<label>Earthquake: </label>
-		            			<p>{{eq_tech}}</p>
+		            			<p>{{tech_info.eq_tech}}</p>
 		            		{{/if}}
-		            		{{#if od_tech}}
+		            		{{#if tech_info.od_tech}}
 		            			<label>On Demand: </label>
-		            			<p>{{od_tech}}</p>
+		            			<p>{{tech_info.od_tech}}</p>
 		            		{{/if}}
 		            	</div>
-		            {{/each}}
-
 		            </div>
 		        {{/if}}
                 </div>
