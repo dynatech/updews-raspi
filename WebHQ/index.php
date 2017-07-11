@@ -1,8 +1,9 @@
 <?php
-header("refresh: 60;");
+// header("refresh: 60;");
 $fdir = "/home/pi/monitoringoutputs/";
 // $fdir = "../monitoringoutputs/";
 $fAlerts = "PublicAlert.json";
+// $fAlerts = "PublicAlert_eq.json";
 $fIssues = "MonitoringIssues.txt";
 
 error_reporting(E_ERROR | E_PARSE);
@@ -223,7 +224,7 @@ fclose($myfile1);
 		            	<div class="col-sm-12">
 		            		<h3><u>Technical Info</u></h3>
 		            	</div>
-		            	<div class="col-sm-6">
+		            	<div class="col-sm-8">
 		            		{{#if tech_info.sensor_tech}}
 		            			<label>Sensor: </label>
 		            			<p>{{tech_info.sensor_tech}}</p>
@@ -238,7 +239,26 @@ fclose($myfile1);
 		            		{{/if}}
 		            		{{#if tech_info.eq_tech}}
 		            			<label>Earthquake: </label>
-		            			<p>{{tech_info.eq_tech}}</p>
+			                    <table class="table table-hover table-condensed">
+			                    	<tbody>
+		                                <tr>
+		                                	<td>Magnitude</td>
+		                                	<td>{{tech_info.eq_tech.magnitude}}</td>
+		                                </tr>
+		                                <tr>
+			                    			<td>Longitude</td>
+		                                	<td>{{tech_info.eq_tech.longitude}}</td>
+		                                </tr>
+		                                <tr>
+			                    			<td>Latitude</td>
+		                                	<td>{{tech_info.eq_tech.latitude}}</td>
+		                                </tr>
+		                                <tr>
+			                    			<td>Info</td>
+		                                	<td>{{tech_info.eq_tech.info}}</td>
+		                                </tr>
+			                    	</tbody>
+			                    </table>
 		            		{{/if}}
 		            		{{#if tech_info.od_tech}}
 		            			<label>On Demand: </label>
@@ -374,23 +394,6 @@ fclose($myfile1);
 				<div id="invalidated" class="row col-sm-12">
 					<h2>Invalidated Alerts</h2><Br/>
 					<div id="invalid-triggers"></div>
-				</div>
-				<div id="issues" class="row col-sm-12">
-					<h2>Monitoring Issues</h2><Br/>
-					<div id="all-issues">
-					<?php
-						try {
-							$issuesFile = fopen($fdir . $fIssues, "r");
-							$txtIssues = fread($issuesFile,filesize($fdir . $fIssues));
-							fclose($issuesFile);
-
-							echo "<p>". nl2br($txtIssues) ."</p>";
-						} 
-						catch (Exception $e) {
-						    echo "<p>Unable to open the file!</p>";
-						}
-					?>
-					</div>
 				</div>
 			</div>
 		</div>
